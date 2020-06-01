@@ -1,1 +1,3 @@
 # budgeAPP
+## MVP
+## Architecture
