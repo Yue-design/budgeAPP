@@ -240,6 +240,13 @@ let UIController = (function() {
         return (type === 'exp'? '-' : '+') + ' ' + int + '.' + dec;
     };
 
+
+    let nodeListForEach = function(list, callback) { // make it public
+        for (let i = 0; i < list.length; i++) { // A nodeList has a length property
+            callback(list[i], i);
+        }
+    };
+
     return {
 
         getInput: function() {
@@ -323,12 +330,6 @@ let UIController = (function() {
             // from the DOM strings return a node list
             let fields = document.querySelectorAll(DOMstrings.expensesPercLabel);
 
-            let nodeListForEach = function(list, callback) {
-                for (let i = 0; i < list.length; i++) { // A nodeList has a length property
-                    callback(list[i], i);
-                }
-            };
-
             nodeListForEach(fields, function(current, index) {
                 
                 if (percentages > 0) {
@@ -342,12 +343,32 @@ let UIController = (function() {
 
         displayMonth: function() {
 
-            let now, year, month;
+            let now, months, month, year;
             
             now = new Date();
+
+            months = ['January', 'Feburary', 'March', 'April', 'May', 'June', 'July', 'August', 'Sepetember', 'October', 'November', 'December'];
+
             month = now.getMonth();
             year = now.getFullYear(); // inheritance from the Date prototype... call the methods
-            document.querySelector(DOMstrings.dateLabel).textContent = month + ' ' + year;
+            document.querySelector(DOMstrings.dateLabel).textContent = months[month] + ' ' + year;
+
+        },
+
+        changedType: function() {
+
+            let fields = document.querySelectorAll(
+                DOMstrings.inputType + ',' +
+                DOMstrings.inputDescription + ',' +
+                DOMstrings.inputValue
+            );
+ 
+            nodeListForEach(fields, function(cur) {
+                // cur.classList.add('red-focus'); // so far, we cannot remove it
+                cur.classList.toggle('red-focus');
+            });
+
+            document.querySelector(DOMstrings.inputBtn).classList.toggle('red');
 
         },
 
@@ -388,6 +409,7 @@ let controller = (function(budgetCtrl, UICtrl) {
 
         document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem);
 
+        document.querySelector(DOM.inputType).addEventListener('change', UICtrl.changedType);
     };
     
     let updateBudget = function() {
@@ -486,7 +508,7 @@ let controller = (function(budgetCtrl, UICtrl) {
                 budget: 0,
                 totalInc: 0,
                 totalExp: 0,
-                percentage: 0             
+                percentage: -1             
             });
 
             setupEventListeners(); // let it be callable
